@@ -2,7 +2,7 @@ import React from "react";
 
 interface Content {
   className: string;
-  message: string | JSX.Element | null;
+  message: React.ReactNode;
 }
 
 export const ChatBubble: React.FC<Content> = ({ className, message }) => {

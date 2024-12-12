@@ -2,7 +2,7 @@ import React from "react";
 import { ChatBubble } from "./ChatBubble";
 
 interface Props {
-  message: string;
+  message: React.ReactNode;
   type: string;
 }
 
