@@ -1,5 +1,5 @@
 import React, { useRef, useState } from "react";
-import { Paperclip, Send, File } from "lucide-react";
+import { Paperclip, Send, File as FileIcon } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { ChatBubble } from "./components/ui/chat/ChatBubble";
 import { Chat } from "./components/ui/chat/Chat";
@@ -8,12 +8,12 @@ import { PulseLoader } from "react-spinners";
 
 interface Chats {
   type: string;
-  message: string;
+  message: React.ReactNode;
 }
 
 export const App: React.FC = () => {
   const fileInputRef = useRef<HTMLInputElement | null>(null);
-  const [filename, setFilename] = useState<string | null>(null);
+  const [file, setFile] = useState<File | null>(null);
   const [query, setQuery] = useState<string>("");
   const [chats, setChats] = useState<Array<Chats>>([]);
   const [loading, setLoading] = useState<boolean>(false);
@@ -27,9 +27,9 @@ export const App: React.FC = () => {
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
-      setFilename(e.target.files[0].name);
+      setFile(e.target.files[0]);
     } else {
-      setFilename(null);
+      setFile(null);
     }
   };
 
@@ -40,6 +40,24 @@ export const App: React.FC = () => {
   const handleForm = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (query !== "") {
+      if (file !== null) {
+        callApiAnalyzedFile();
+        setChats((prev) => [
+          ...prev,
+          {
+            type: "question",
+            message: (
+              <p>
+                <FileIcon />
+                {file.name}
+              </p>
+            ),
+          },
+        ]);
+      } else {
+        callApiChat();
+      }
+
       setChats((prev) => [
         ...prev,
         {
@@ -50,7 +68,7 @@ export const App: React.FC = () => {
       setLoading(true);
       setQuery("");
       setError(false);
-      callApiChat();
+      setFile(null);
     }
   };
 
@@ -70,6 +88,38 @@ export const App: React.FC = () => {
       if (err instanceof AxiosError) {
         setError(true);
         console.log(err.message);
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const callApiAnalyzedFile = async () => {
+    const formData = new FormData();
+    if (file !== null) {
+      formData.append("file", file);
+      formData.append("query", query);
+    }
+
+    try {
+      const response = await axios.post("http://localhost:8080/analyzed", formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
+
+      if (response.status == 200) {
+        setChats((prev) => [
+          ...prev,
+          {
+            type: "answer",
+            message: response.data.answer,
+          },
+        ]);
+      }
+    } catch (err) {
+      if (err instanceof AxiosError) {
+        console.log(err);
       }
     } finally {
       setLoading(false);
@@ -107,9 +157,9 @@ export const App: React.FC = () => {
 
           <input type='file' ref={fileInputRef} style={{ display: "none" }} aria-label='File input' onChange={handleFileChange} />
           <div className='flex flex-col border p-2 rounded-xl w-full'>
-            {filename && (
+            {file && (
               <div className='bg-gray-200 flex w-max p-2 mb-4'>
-                <File /> {filename}
+                <FileIcon /> {file?.name}
               </div>
             )}
             <input type='text' placeholder='Input your message...' value={query} className='focus:outline-none' onChange={handleInput} />
