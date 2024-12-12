@@ -130,9 +130,12 @@ export const App: React.FC = () => {
     <div className='min-h-screen flex justify-center items-center'>
       <div className='p-4 rounded-xl border-2 h-[90vh] flex flex-col gap-2 min-w-[70vw]'>
         <div>
-          <h1 className='font-bold text-4xl'>
-            Ruang<span className='text-primary'>Chat</span>
-          </h1>
+          <div className='flex'>
+            <h1 className='font-bold text-4xl'>
+              Ruang<span className='text-primary'>Chat</span>
+            </h1>
+            <img src='logo.svg' width={50} />
+          </div>
           <hr className='min-w-full border mt-2' />
         </div>
         <ScrollArea className='px-4 flex-1 '>
