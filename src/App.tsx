@@ -2,12 +2,22 @@ import React, { useRef, useState } from "react";
 import { Paperclip, Send, File } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { ChatBubble } from "./components/ui/chat/ChatBubble";
+import { Chat } from "./components/ui/chat/Chat";
+import axios, { AxiosError } from "axios";
+import { PulseLoader } from "react-spinners";
+
+interface Chats {
+  type: string;
+  message: string;
+}
 
 export const App: React.FC = () => {
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const [filename, setFilename] = useState<string | null>(null);
-  const [question, setQuestion] = useState<string>("");
-  const [chats, setChats] = useState<Array<string>>([]);
+  const [query, setQuery] = useState<string>("");
+  const [chats, setChats] = useState<Array<Chats>>([]);
+  const [loading, setLoading] = useState<boolean>(false);
+  const [error, setError] = useState<boolean>(false);
 
   const handleAttachmentClick = () => {
     if (fileInputRef.current) {
@@ -24,14 +34,45 @@ export const App: React.FC = () => {
   };
 
   const handleInput = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setQuestion(e.target.value);
+    setQuery(e.target.value);
   };
 
   const handleForm = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (question !== "") {
-      setChats([...chats, question]);
-      setQuestion("");
+    if (query !== "") {
+      setChats((prev) => [
+        ...prev,
+        {
+          type: "question",
+          message: query,
+        },
+      ]);
+      setLoading(true);
+      setQuery("");
+      setError(false);
+      callApiChat();
+    }
+  };
+
+  const callApiChat = async () => {
+    try {
+      const response = await axios.post("http://localhost:8080/chat", { query });
+      if (response.status === 200) {
+        setChats((prev) => [
+          ...prev,
+          {
+            type: "answer",
+            message: response.data.answer,
+          },
+        ]);
+      }
+    } catch (err) {
+      if (err instanceof AxiosError) {
+        setError(true);
+        console.log(err.message);
+      }
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -45,7 +86,13 @@ export const App: React.FC = () => {
           <hr className='min-w-full border mt-2' />
         </div>
         <ScrollArea className='px-4 flex-1 '>
-          <div className='flex flex-col gap-2'>{chats && chats.map((chat, index) => <ChatBubble message={chat} type='question' key={index} />)}</div>
+          <div className='flex flex-col gap-2'>
+            {chats && chats.map((chat, index) => <Chat message={chat.message} type={chat.type} key={index} />)}
+          </div>
+          {loading && <ChatBubble className='bg-secondary text-black rounded-br-xl' message={<PulseLoader size={5} />} />}
+          {error && (
+            <ChatBubble className='bg-secondary text-black rounded-br-xl' message='Sorry, there is a problem at the moment, please try again 😭' />
+          )}
         </ScrollArea>
 
         <form method='POST' onSubmit={handleForm} className='flex min-w-full max-w-sm items-center space-x-1'>
@@ -65,7 +112,7 @@ export const App: React.FC = () => {
                 <File /> {filename}
               </div>
             )}
-            <input type='text' placeholder='Input your message...' value={question} className='focus:outline-none' onChange={handleInput} />
+            <input type='text' placeholder='Input your message...' value={query} className='focus:outline-none' onChange={handleInput} />
           </div>
           <button type='submit' className='rounded-full p-2.5'>
             <Send className='text-primary' />
