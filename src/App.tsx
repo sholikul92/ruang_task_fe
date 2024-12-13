@@ -1,10 +1,11 @@
 import React, { useRef, useState } from "react";
-import { Paperclip, Send, File as FileIcon } from "lucide-react";
+import { File as FileIcon, Save } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { ChatBubble } from "./components/ui/chat/ChatBubble";
 import { Chat } from "./components/ui/chat/Chat";
 import { useApi } from "./hooks/useApi";
 import { PulseLoader } from "react-spinners";
+import { FormInput } from "./components/templates/FormInput";
 
 interface Chats {
   type: string;
@@ -12,7 +13,6 @@ interface Chats {
 }
 
 export const App: React.FC = () => {
-  const fileInputRef = useRef<HTMLInputElement | null>(null);
   const [file, setFile] = useState<File | null>(null);
   const [query, setQuery] = useState<string>("");
   const [chats, setChats] = useState<Array<Chats>>([]);
@@ -21,24 +21,11 @@ export const App: React.FC = () => {
   const textAreaRef = useRef<HTMLTextAreaElement | null>(null);
   const { callApiChat, callApiAnalyzedFile } = useApi({ setChats, setLoading, setError, file, query });
 
-  const handleAttachmentClick = () => {
-    if (fileInputRef.current) {
-      fileInputRef.current.value = "";
-      fileInputRef.current.click();
-    }
-  };
-
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
       setFile(e.target.files[0]);
-      console.log(file);
-
-      if (fileInputRef.current) {
-        fileInputRef.current.value = "";
-      }
     } else {
       setFile(null);
-      console.log(file);
     }
   };
 
@@ -93,12 +80,17 @@ export const App: React.FC = () => {
   };
 
   return (
-    <div className='rounded-xl h-[95vh] flex flex-col gap-2 min-w-[70vw] w-full mr-8 mt-4'>
-      <div className='flex justify-center md:justify-normal'>
-        <h1 className='font-bold text-4xl'>
-          Ruang<span className='text-primary'>Chat</span>
-        </h1>
-        <img src='logo.svg' width={50} />
+    <div className='rounded-xl h-[95vh] flex flex-col gap-2 min-w-[70vw] w-full mr-6 mt-4'>
+      <div className='flex justify-between'>
+        <div className='flex justify-center md:justify-normal'>
+          <h1 className='font-bold text-2xl md:text-4xl'>
+            Ruang<span className='text-primary'>Chat</span>
+          </h1>
+          <img src='logo.svg' className='w-8 md:w-12' />
+        </div>
+        <button>
+          <Save className='text-primary size-6 md:size-8' />
+        </button>
       </div>
       <div className='flex flex-col flex-1 md:w-[60%] self-center h-[90%] '>
         <ScrollArea className='px-4 flex-1'>
@@ -114,38 +106,14 @@ export const App: React.FC = () => {
           )}
         </ScrollArea>
 
-        <form method='POST' onSubmit={handleForm} className='flex mx-4 space-x-1 border-2 rounded-xl p-2 items-end mt-2'>
-          <button
-            type='button'
-            className='flex items-center justify-center w-10 h-10 rounded-full hover:text-gray-600 text-gray-400'
-            aria-label='Attach file'
-            onClick={handleAttachmentClick}
-          >
-            <Paperclip className='w-5 h-5' />
-          </button>
-
-          <input type='file' ref={fileInputRef} style={{ display: "none" }} aria-label='File input' onChange={handleFileChange} />
-          <div className='flex flex-col w-full'>
-            {file && (
-              <div className='bg-gray-200 flex w-max p-2 mb-4'>
-                <FileIcon /> {file?.name}
-              </div>
-            )}
-            <textarea
-              ref={textAreaRef}
-              placeholder='Input your message...'
-              value={query}
-              rows={2}
-              cols={24}
-              style={{ lineHeight: "1.2" }}
-              className='focus:outline-none w-full resize-none overflow-auto'
-              onChange={handleInput}
-            />
-          </div>
-          <button type='submit' className='rounded-full p-2.5 '>
-            <Send className='text-primary' />
-          </button>
-        </form>
+        <FormInput
+          handleForm={handleForm}
+          handleFileChange={handleFileChange}
+          handleInput={handleInput}
+          setFile={setFile}
+          file={file}
+          query={query}
+        />
       </div>
     </div>
   );
