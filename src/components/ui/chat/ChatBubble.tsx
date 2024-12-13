@@ -6,5 +6,5 @@ interface Content {
 }
 
 export const ChatBubble: React.FC<Content> = ({ className, message }) => {
-  return <div className={`${className} max-w-96 w-max p-2 rounded-tr-xl rounded-tl-xl`}>{message}</div>;
+  return <div className={`${className} max-w-[23rem] w-max p-2 rounded-tr-xl rounded-tl-xl`}>{message}</div>;
 };
