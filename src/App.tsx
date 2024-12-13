@@ -3,7 +3,7 @@ import { Paperclip, Send, File as FileIcon } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { ChatBubble } from "./components/ui/chat/ChatBubble";
 import { Chat } from "./components/ui/chat/Chat";
-import axios, { AxiosError } from "axios";
+import { useApi } from "./hooks/useApi";
 import { PulseLoader } from "react-spinners";
 
 interface Chats {
@@ -19,6 +19,7 @@ export const App: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<boolean>(false);
   const textAreaRef = useRef<HTMLTextAreaElement | null>(null);
+  const { callApiChat, callApiAnalyzedFile } = useApi({ setChats, setLoading, setError, file, query });
 
   const handleAttachmentClick = () => {
     if (fileInputRef.current) {
@@ -88,61 +89,6 @@ export const App: React.FC = () => {
       setQuery("");
       setError(false);
       setFile(null);
-    }
-  };
-
-  const callApiChat = async () => {
-    try {
-      const response = await axios.post("http://localhost:8080/chat", { query });
-      if (response.status === 200) {
-        setChats((prev) => [
-          ...prev,
-          {
-            type: "answer",
-            message: response.data.answer,
-          },
-        ]);
-      }
-    } catch (err) {
-      if (err instanceof AxiosError) {
-        setError(true);
-        console.log(err.message);
-      }
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const callApiAnalyzedFile = async () => {
-    const formData = new FormData();
-    if (file !== null) {
-      formData.append("file", file);
-      formData.append("query", query);
-    }
-
-    try {
-      const response = await axios.post("http://localhost:8080/analyzed", formData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      });
-
-      if (response.status == 200) {
-        setChats((prev) => [
-          ...prev,
-          {
-            type: "answer",
-            message: response.data.answer,
-          },
-        ]);
-      }
-    } catch (err) {
-      if (err instanceof AxiosError) {
-        console.log(err);
-        setError(true);
-      }
-    } finally {
-      setLoading(false);
     }
   };
 
