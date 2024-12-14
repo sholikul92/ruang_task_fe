@@ -6,6 +6,10 @@ import { Chat } from "./components/ui/chat/Chat";
 import { useApi } from "./hooks/useApi";
 import { PulseLoader } from "react-spinners";
 import { FormInput } from "./components/templates/FormInput";
+import { dbConfig } from "./lib/indexedDbConfig";
+import { initDB, useIndexedDB } from "react-indexed-db-hook";
+
+initDB(dbConfig);
 
 interface Chats {
   type: string;
@@ -78,6 +82,9 @@ export const App: React.FC = () => {
       setFile(null);
     }
   };
+
+  const db = useIndexedDB("ruang_chat");
+  console.log(db);
 
   return (
     <div className='rounded-xl h-[95vh] flex flex-col gap-2 min-w-[70vw] w-full mr-6 mt-4'>
