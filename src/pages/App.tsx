@@ -1,17 +1,17 @@
 import React, { useRef, useState } from "react";
 import { CirclePlus, File as FileIcon, Save } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { ChatBubble } from "./components/ui/chat/ChatBubble";
-import { Chat } from "./components/ui/chat/Chat";
-import { useApi } from "./hooks/useApi";
+import { ChatBubble } from "../components/ui/chat/ChatBubble";
+import { Chat } from "../components/ui/chat/Chat";
+import { useApi } from "../hooks/useApi";
 import { PulseLoader } from "react-spinners";
-import { FormInput } from "./components/templates/FormInput";
-import { dbConfig } from "./lib/indexedDbConfig";
+import { FormInput } from "../components/templates/FormInput";
+import { dbConfig } from "../lib/indexedDbConfig";
 import { initDB } from "react-indexed-db-hook";
-import { useIndexedDb } from "./hooks/useIndexedDb";
-import { AppSidebar } from "./components/templates/AppSidebar";
-import { SidebarTrigger } from "./components/ui/sidebar";
-import { Payload, Chats, responseIndexedDB } from "./components/model/interface";
+import { useIndexedDb } from "../hooks/useIndexedDb";
+import { AppSidebar } from "../components/templates/AppSidebar";
+import { SidebarTrigger } from "../components/ui/sidebar";
+import { Payload, Chats, responseIndexedDB } from "../model/interface";
 
 initDB(dbConfig);
 
