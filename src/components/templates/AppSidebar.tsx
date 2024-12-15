@@ -3,7 +3,7 @@ import { useIndexedDb } from "@/hooks/useIndexedDb";
 import { CircleX } from "lucide-react";
 import { useEffect } from "react";
 import React from "react";
-import { responseIndexedDB, Chats } from "../model/interface";
+import { responseIndexedDB, Chats } from "../../model/interface";
 
 interface Props {
   fetchHistory: () => Promise<void>;

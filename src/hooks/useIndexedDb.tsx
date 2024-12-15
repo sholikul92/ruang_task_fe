@@ -1,5 +1,5 @@
 import { useIndexedDB } from "react-indexed-db-hook";
-import { responseIndexedDB, Payload } from "@/components/model/interface";
+import { responseIndexedDB, Payload } from "@/model/interface";
 
 export const useIndexedDb = () => {
   const db = useIndexedDB("chats");
