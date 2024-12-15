@@ -131,10 +131,6 @@ export const App: React.FC = () => {
     setChats([]);
   };
 
-  if (historyChat?.length === 0 || historyChat === null) {
-    console.log("kosong");
-  }
-
   return (
     <>
       <SidebarTrigger />
