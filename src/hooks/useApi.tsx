@@ -14,12 +14,23 @@ interface ApiProps {
   query: string;
 }
 
-const base_url = "http://localhost:8080/api/v1";
+const api = axios.create({
+  baseURL: "http://localhost:8080/api/v1",
+  withCredentials: true,
+});
 
 export const useApi = ({ setChats, setLoading, setError, file, query }: ApiProps) => {
   const callApiChat = async () => {
     try {
-      const response = await axios.post(`${base_url}/app/chat`, { query });
+      const response = await api.post(
+        `/app/chat`,
+        { query },
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
       if (response.status === 200) {
         setChats((prev) => [
           ...prev,
@@ -47,7 +58,7 @@ export const useApi = ({ setChats, setLoading, setError, file, query }: ApiProps
     }
 
     try {
-      const response = await axios.post(`${base_url}/app/analyzed`, formData, {
+      const response = await api.post(`/app/analyzed`, formData, {
         headers: {
           "Content-Type": "multipart/form-data",
         },
